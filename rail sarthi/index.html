@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Western Railway Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="logo.jfif" alt="Rail Sarthi Logo" style="max-width: 100px; margin: 20px;">
+        </div>
+        <ul class="menu">
+            <li><a href="#">Home</a></li>
+            <li><a href="ticketbooking.html" >Ticket Booking</a></li>
+            <li><a href="map.html">Station Map</a></li>
+            <li><a href="helplineno.html">Helpline Number</a></li>
+            <li><a href="indicator.html">Indicator</a></li>
+            <li><a href="guidlines.html">Guidlines</a></li>
+            <li><a href="railsarthi.html">Rail Sarthi</a></li>
+            <li><a href="FARES.HTML">Ticket Fare</a></li>
+            <li><a href="about.html">About Us</a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <div class="chatbot">
+            <h1>Mumbai Western Railway Assistant</h1>
+            <form id="trainForm">
+                <label for="source">Select Source Station:</label>
+                <select id="source" name="source">
+                    <option value="" disabled selected>Select Source</option>
+                    <option value="Virar">Virar</option>
+                    <option value="Nalasopara">Nalasopara</option>
+                    <option value="Vasai Road">Vasai Road</option>
+                    <option value="Naigaon">Naigaon</option>
+                    <option value="Bhayandar">Bhayandar</option>
+                    <option value="Mira Road">Mira Road</option>
+                    <option value="Dahisar">Dahisar</option>
+                    <option value="Borivali">Borivali</option>
+                    <option value="Kandivali">Kandivali</option>
+                    <option value="Malad">Malad</option>
+                    <option value="Goregaon">Goregaon</option>
+                    <option value="Jogeshwari">Jogeshwari</option>
+                    <option value="Andheri">Andheri</option>
+                    <option value="Vile Parle">Vile Parle</option>
+                    <option value="Santacruz">Santacruz</option>
+                    <option value="Khar Road">Khar Road</option>
+                    <option value="Bandra">Bandra</option>
+                    <option value="Mahim">Mahim</option>
+                    <option value="Matunga Road">Matunga Road</option>
+                    <option value="Dadar">Dadar</option>
+                    <option value="Elphinstone Road">Elphinstone Road</option>
+                    <option value="Lower Parel">Lower Parel</option>
+                    <option value="Mahalaxmi">Mahalaxmi</option>
+                    <option value="Mumbai Central">Mumbai Central</option>
+                    <option value="Grant Road">Grant Road</option>
+                    <option value="Charni Road">Charni Road</option>
+                    <option value="Marine Lines">Marine Lines</option>
+                    <option value="Churchgate">Churchgate</option>
+                </select>
+
+                <label for="destination">Select Destination Station:</label>
+                <select id="destination" name="destination">
+                    <option value="" disabled selected>Select Destination</option>
+                    <option value="Virar">Virar</option>
+                    <option value="Nalasopara">Nalasopara</option>
+                    <option value="Vasai Road">Vasai Road</option>
+                    <option value="Naigaon">Naigaon</option>
+                    <option value="Bhayandar">Bhayandar</option>
+                    <option value="Mira Road">Mira Road</option>
+                    <option value="Dahisar">Dahisar</option>
+                    <option value="Borivali">Borivali</option>
+                    <option value="Kandivali">Kandivali</option>
+                    <option value="Malad">Malad</option>
+                    <option value="Goregaon">Goregaon</option>
+                    <option value="Jogeshwari">Jogeshwari</option>
+                    <option value="Andheri">Andheri</option>
+                    <option value="Vile Parle">Vile Parle</option>
+                    <option value="Santacruz">Santacruz</option>
+                    <option value="Khar Road">Khar Road</option>
+                    <option value="Bandra">Bandra</option>
+                    <option value="Mahim">Mahim</option>
+                    <option value="Matunga Road">Matunga Road</option>
+                    <option value="Dadar">Dadar</option>
+                    <option value="Elphinstone Road">Elphinstone Road</option>
+                    <option value="Lower Parel">Lower Parel</option>
+                    <option value="Mahalaxmi">Mahalaxmi</option>
+                    <option value="Mumbai Central">Mumbai Central</option>
+                    <option value="Grant Road">Grant Road</option>
+                    <option value="Charni Road">Charni Road</option>
+                    <option value="Marine Lines">Marine Lines</option>
+                    <option value="Churchgate">Churchgate</option>
+                </select>
+                <br>
+                <br>
+
+                <button type="button" onclick="getAvailableTrains()">Find Trains</button>
+            </form>
+
+            <div id="trainSchedule">
+                <h2>Available Trains:</h2>
+                <ul id="trainList"></ul>
+            </div>
+        </div>
+    </div>
+    <button class="chatbot-button" id="chatbot-button">Chat with  Rail Sarthi</button>
+    <div class="chatbot-popup" id="chatbot-popup">
+        <div class="chat-container">
+            <div class="chat-header">
+                Rail Sarthi
+            </div>
+            <div class="chat-messages" id="chat-messages">
+            </div>
+            <div class="chat-input">
+                <input type="text" id="user-input" placeholder="Type a message...">
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const trainData = [
+            { train: "Slow Local", source: "Virar", destination: "Churchgate", time: "03:25 (PF-2)" },
+            { train: "Fast Local", source: "Virar", destination: "Churchgate", time: "03:40 (PF-1)" },
+            { train: "Fast Local", source: "Virar", destination: "Churchgate", time: "04:30 (PF-1)" },
+            { train: "Fast Local (AC)", source: "Virar", destination: "Churchgate", time: "06:08 (PF-1)"},
+            { train: "Slow Local (AC)", source: "Virar", destination: "Churchgate", time: "06:08 (PF-5)"},
+            { train: "Slow Local", source: "Virar", destination: "Churchgate", time: "06:58 (PF-2)"},
+            { train: "Fast Local", source: "Mira Road", destination: "Dadar", time: "04:25 (PF-4)" },
+            { train: "Fast Local", source: "Dadar", destination: "Virar", time: "05:35 (PF-3)" },
+            { train: "Slow Local", source: "Dadar", destination: "Virar", time: "04:35 (PF-3)" },
+            { train: "Fast Local", source: "Churchgate", destination: "Virar", time: "04:35 (PF-2|3 BOTH)" },
+            { train: "Fast Local", source: "Churchgate", destination: "Virar", time: "04:40 (PF-1|2 BOTH)" },
+            { train: "Slow Local", source: "Churchgate", destination: "Virar", time: "03:35 (PF-1|2 BOTH)" },
+            { train: "Slow  Local (AC)", source: "Churchgate", destination: "Virar", time: "04:55 (PF-3|4 BOTH)" },
+            { train: "Slow Local", source: "Borivali", destination: "Dadar", time: "10:45 (PF-4)" },
+            { train: "Fast LocaL", source: "Virar", destination: "Churchgate", time: "11:25" },
+            { train: "Slow Local", source: "Borivali", destination: "Churchgate", time: "11:40" },
+            { train: "Fast Local", source: "Dahisar", destination: "Churchgate", time: "11:55" },
+            { train: "Slow Local", source: "Mira Road", destination: "Dadar", time: "12:00" },
+            { train: "Fast Local", source: "Mira Road", destination: "Dadar", time: "24:00 (PF-4)" },
+            { train: "Slow Local", source: "Mira Road", destination: "Malad", time: "04:00 (PF-2)" },
+            { train: "Slow Local", source: "Mira Road", destination: "Malad", time: "05:20 (PF-2)" },
+            { train: "Slow Local ", source: "Mira Road", destination: "Malad", time: "05:36 (PF-2)" },
+            { train: "Slow Local (AC)", source: "Mira Road", destination: "Malad", time: "06:50 (PF-2)" },
+            { train: "Slow Local", source: "Mira Road", destination: "Malad", time: "07:32 (PF-2)" },
+        ];
+
+        function getAvailableTrains() {
+            const source = document.getElementById("source").value;
+            const destination = document.getElementById("destination").value;
+            const trainList = document.getElementById("trainList");
+            trainList.innerHTML = '';
+
+            if (source === "" || destination === "") {
+                alert("Please select both source and destination stations.");
+                return;
+            }
+
+            const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+
+            const availableTrains = trainData.filter(train => 
+                train.source === source && 
+                train.destination === destination && 
+                train.time >= currentTime
+            );
+
+            if (availableTrains.length === 0) {
+                trainList.innerHTML = "<li>No trains available at the moment.</li>";
+            } else {
+                availableTrains.forEach(train => {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = `${train.train} - ${train.time}`;
+                    trainList.appendChild(listItem);
+                });
+            }
+        }
+
+        function toggleChatbotPopup() {
+            const chatbotPopup = document.querySelector(".chatbot-popup");
+            chatbotPopup.classList.toggle("show");
+        }
+
+        const chatbotButton = document.getElementById('chatbot-button');
+        const chatbotPopup = document.getElementById('chatbot-popup');
+        const chatMessages = document.getElementById('chat-messages');
+        const userinput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+
+        chatbotButton.addEventListener('click', () => {
+            chatbotPopup.classList.toggle('show');
+        });
+
+        sendButton.addEventListener('click', () => {
+            const userInput = userinput.value;
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user-message');
+            userMessage.textContent = userInput;
+            chatMessages.appendChild(userMessage);
+
+            // Add bot response here
+            const botResponse = 'Thank you for your message!';
+            const botMessage = document.createElement('div');
+            botMessage.classList.add('message', 'bot-message');
+            botMessage.textContent = botResponse;
+            chatMessages.appendChild(botMessage);
+            userinput.value = '';
+            
+        });
+    </script>
+</body>
+</html>

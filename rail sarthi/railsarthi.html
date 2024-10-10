@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rail Sarthi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .chat-container {
+            width: 400px;
+            height: 600px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background-color: #075e54;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            max-width: 80%;
+        }
+
+        .user-message {
+            background-color: #dcf8c6;
+            padding: 10px;
+            border-radius: 8px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        .bot-message {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 8px;
+            align-self: flex-start;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            background-color: #075e54;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+
+        .option-button {
+            padding: 10px 15px;
+            background-color: #128C7E;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+
+        .option-button:hover {
+            background-color: #0d6d63;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+           Rail Sarthi
+        </div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+
+        let journeyState = 'initial';
+        let source = '';
+        let destination = '';
+
+        const stationData = [
+            { name: 'Churchgate', slow: true, fast: true },
+            { name: 'Marine Lines', slow: true, fast: false },
+            { name: 'Charni Road', slow: true, fast: false },
+            { name: 'Grant Road', slow: true, fast: false },
+            { name: 'Mumbai Central', slow: true, fast: true },
+            { name: 'Mahalaxmi', slow: true, fast: false },
+            { name: 'Lower Parel', slow: true, fast: false },
+            { name: 'Elphinstone Road', slow: true, fast: false },
+            { name: 'Dadar', slow: true, fast: true },
+            { name: 'Matunga Road', slow: true, fast: false },
+            { name: 'Mahim', slow: true, fast: false },
+            { name: 'Bandra', slow: true, fast: true },
+            { name: 'Khar Road', slow: true, fast: false },
+            { name: 'Santacruz', slow: true, fast: false },
+            { name: 'Vile Parle', slow: true, fast: false },
+            { name: 'Andheri', slow: true, fast: true },
+            { name: 'Jogeshwari', slow: true, fast: false },
+            { name: 'Goregaon', slow: true, fast: true },
+            { name: 'Malad', slow: true, fast: true },
+            { name: 'Kandivali', slow: true, fast: true },
+            { name: 'Borivali', slow: true, fast: true },
+            { name: 'Dahisar', slow: true, fast: false },
+            { name: 'Mira Road', slow: true, fast: true },
+            { name: 'Bhayandar', slow: true, fast: true },
+            { name: 'Naigaon', slow: true, fast: false },
+            { name: 'Vasai Road', slow: true, fast: true },
+            { name: 'Nalla Sopara', slow: true, fast: false },
+            { name: 'Virar', slow: true, fast: true }
+        ];
+
+        function addMessage(message, isUser = false) {
+            return new Promise((resolve) => {
+                const messageElement = document.createElement('div');
+                messageElement.className = isUser ? 'user-message' : 'bot-message';
+                chatMessages.appendChild(messageElement);
+
+                let i = 0;
+                const intervalId = setInterval(() => {
+                    if (i < message.length) {
+                        messageElement.textContent += message[i];
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                        i++;
+                    } else {
+                        clearInterval(intervalId);
+                        resolve();
+                    }
+                }, 20);
+            });
+        }
+
+        function addButton(text, onClick) {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'button-container';
+            const button = document.createElement('button');
+            button.className = 'option-button';
+            button.textContent = text;
+            button.addEventListener('click', onClick);
+            buttonContainer.appendChild(button);
+            chatMessages.appendChild(buttonContainer);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function processUserInput(input) {
+            await addMessage(input, true);
+            await handleUserInput(input);
+        }
+
+        async function handleUserInput(input) {
+            switch (journeyState) {
+                case 'initial':
+                    if (input.toLowerCase().includes('start journey')) {
+                        startJourney();
+                    } else if (input.toLowerCase().includes('guidance') || input.toLowerCase().includes('travel tips')) {
+                        window.open('guidance.html', '_blank');
+                    } else if (input.toLowerCase().includes('ticket') || input.toLowerCase().includes('book')) {
+                        window.open('ticketbooking.html', '_blank');
+                    } else {
+                        await addMessage("I'm sorry, I didn't understand that. Can you please choose one of the options provided?");
+                    }
+                    break;
+                case 'awaitingSource':
+                    handleSourceInput(input);
+                    break;
+                case 'awaitingDestination':
+                    handleDestinationInput(input);
+                    break;
+                case 'awaitingFeedback':
+                    await handleFeedback(input);
+                    break;
+                default:
+                    await addMessage("I'm sorry, I didn't understand that. Can you please try again?");
+            }
+        }
+
+        function startJourney() {
+            journeyState = 'awaitingSource';
+            addMessage("Great! Let's plan your journey. Please enter your source station.");
+        }
+
+        async function handleSourceInput(input) {
+            source = input.trim();
+            if (stationData.find(station => station.name.toLowerCase() === source.toLowerCase())) {
+                journeyState = 'awaitingDestination';
+                await addMessage(`Your source station is ${source}. Now, please enter your destination station.`);
+            } else {
+                await addMessage("I'm sorry, I couldn't recognize that station. Please enter a valid source station name.");
+            }
+        }
+
+        async function handleDestinationInput(input) {
+            destination = input.trim();
+            if (stationData.find(station => station.name.toLowerCase() === destination.toLowerCase())) {
+                journeyState = 'confirmJourney';
+                await addMessage(`Your destination station is ${destination}.`);
+                addButton("Confirm Journey", provideJourneyDetails);
+                addButton("Change Source", () => {
+                    journeyState = 'awaitingSource';
+                    addMessage("Please enter your new source station.");
+                });
+                addButton("Change Destination", () => {
+                    journeyState = 'awaitingDestination';
+                    addMessage("Please enter your new destination station.");
+                });
+            } else {
+                await addMessage("I'm sorry, I couldn't recognize that station. Please enter a valid destination station name.");
+            }
+        }
+
+        async function provideJourneyDetails() {
+            const sourceIndex = stationData.findIndex(station => station.name.toLowerCase() === source.toLowerCase());
+            const destIndex = stationData.findIndex(station => station.name.toLowerCase() === destination.toLowerCase());
+            
+            if (sourceIndex !== -1 && destIndex !== -1) {
+                await addMessage(`Great! I'll guide you on your journey from ${source} to ${destination}.`);
+                
+                const isNorthbound = sourceIndex < destIndex;
+                const direction = isNorthbound ? "northbound" : "southbound";
+                const terminus = isNorthbound ? "Virar" : "Churchgate";
+
+                // Special prompt for Virar to Churchgate journey
+                if (source.toLowerCase() === 'virar' && destination.toLowerCase() === 'churchgate') {
+                    await addMessage("Please note: This train will halt at all stations till Borivali, then onwards it will run as a fast train (skipping a few stations).");
+                }
+
+                // Direct route options
+                await addMessage("\nDirect Route Options:");
+                await provideDirectRouteOptions(sourceIndex, destIndex, direction, terminus);
+
+                // Alternate route options
+                const alternateRoutes = getAlternateRoutes(sourceIndex, destIndex);
+                if (alternateRoutes.length > 0) {
+                    await addMessage("\nAlternate Route Options:");
+                    for (let i = 0; i < alternateRoutes.length; i++) {
+                        await provideAlternateRouteOption(i + 1, alternateRoutes[i], direction, terminus);
+                    }
+                }
+
+                // Suggest the best route
+                await suggestBestRoute(sourceIndex, destIndex, alternateRoutes);
+
+                await addMessage("\nAdditional Information:");
+                await addMessage("- Trains run frequently, with a typical interval of 3-5 minutes during peak hours and 5-10 minutes during off-peak hours.");
+                await addMessage("- Remember to check the indicators on the platform for the most up-to-date train information.");
+                await addMessage("- During rush hours, trains might be more crowded. Plan your journey accordingly if possible.");
+
+                await addMessage("\nHave a safe journey!");
+            } else {
+                await addMessage("I'm sorry, I couldn't find information for one or both of the stations you mentioned. Please try again with valid station names.");
+            }
+            
+            journeyState = 'endingJourney';
+            await addMessage("Is there anything else I can help you with?");
+            addButton("End Journey", endJourney);
+            addButton("Plan Another Journey", startJourney);
+            addButton("Get Guidance", () => window.open('guidance.html', '_blank'));
+            addButton("Book Tickets", () => window.open('ticketbooking.html', '_blank'));
+        }
+
+        async function provideDirectRouteOptions(sourceIndex, destIndex, direction, terminus) {
+            // Slow train option
+            await addMessage("Option 1: Direct Slow Train");
+            await addMessage(`1. Board a ${direction} slow train from ${stationData[sourceIndex].name} towards ${terminus}.`);
+            await addMessage(`2. Get off the train at ${stationData[destIndex].name}.`);
+            await addMessage(`Estimated travel time: ${Math.abs(destIndex - sourceIndex) * 3} minutes`);
+
+            // Display stops for slow train
+            await addMessage("Stops for slow train:");
+            await displayStops(sourceIndex, destIndex, 'slow');
+
+            // Fast train option (if available)
+            if (stationData[sourceIndex].fast && stationData[destIndex].fast) {
+                await addMessage("\nOption 2: Direct Fast Train");
+                await addMessage(`1. Board a ${direction} fast train from ${stationData[sourceIndex].name} towards ${terminus}.`);
+                await addMessage(`2. Get off the train at ${stationData[destIndex].name}.`);
+                await addMessage(`Estimated travel time: ${Math.abs(destIndex - sourceIndex) * 2} minutes`);
+
+                // Display stops for fast train
+                await addMessage("Stops for fast train:");
+                await displayStops(sourceIndex, destIndex, 'fast');
+            }
+        }
+
+        async function displayStops(sourceIndex, destIndex, trainType) {
+            const start = Math.min(sourceIndex, destIndex);
+            const end = Math.max(sourceIndex, destIndex);
+            const stops = [];
+
+            for (let i = start; i <= end; i++) {
+                if (trainType === 'slow' || (trainType === 'fast' && stationData[i].fast)) {
+                    stops.push(stationData[i].name);
+                }
+            }
+
+            for (let i = 0; i < stops.length; i++) {
+                await new Promise(resolve => setTimeout(resolve, 500)); // Delay between each stop
+                await addMessage(`- ${stops[i]}`);
+            }
+        }
+
+        function getAlternateRoutes(sourceIndex, destIndex) {
+            const alternateStations = [['Dadar', 'Bandra', 'Andheri']];
+            const routes = [];
+            for (const station of alternateStations) {
+                const stationIndex = stationData.findIndex(s => s.name === station);
+                if ((sourceIndex < stationIndex && stationIndex < destIndex) ||
+                    (sourceIndex > stationIndex && stationIndex > destIndex)) {
+                    routes.push(station);
+                }
+            }
+
+            return routes;
+        }
+
+        async function provideAlternateRouteOption(optionNumber, intermediateStation, direction, terminus) {
+            const intermediateIndex = stationData.findIndex(s => s.name === intermediateStation);
+            await addMessage(`\nOption ${optionNumber + 2}: Via ${intermediateStation}`);
+            await addMessage(`1. Board a ${direction} train (preferably fast) from ${source} to ${intermediateStation}.`);
+            await addMessage(`2. At ${intermediateStation}, switch to a ${direction} train towards ${terminus}.`);
+            await addMessage(`3. Get off the train at ${destination}.`);
+
+            const firstLegTime = Math.abs(intermediateIndex - stationData.findIndex(s => s.name === source)) * 2;
+            const secondLegTime = Math.abs(intermediateIndex - stationData.findIndex(s => s.name === destination)) * 2;
+            await addMessage(`Estimated travel time: ${firstLegTime + secondLegTime + 10} minutes (including transfer time)`);
+        }
+
+        async function suggestBestRoute(sourceIndex, destIndex, alternateRoutes) {
+            await addMessage("\nBest Route Suggestion:");
+            if (stationData[sourceIndex].fast && stationData[destIndex].fast) {
+                await addMessage("The direct fast train (Option 2) is the quickest and most convenient option for your journey.");
+            } else if (Math.abs(destIndex - sourceIndex) <= 5) {
+                await addMessage("The direct slow train (Option 1) is the most convenient option for your short journey.");
+            } else if (alternateRoutes.length > 0) {
+                await addMessage(`Consider taking the route via ${alternateRoutes[0]} (Option 3) for a potentially faster journey with one transfer.`);
+            } else {
+                await addMessage("The direct slow train (Option 1) is the most convenient option for your journey.");
+            }
+        }
+
+        async function endJourney() {
+            journeyState = 'gatheringFeedback';
+            await addMessage("Thank you for using our service. We'd appreciate your feedback.");
+            await addMessage("Would you like to leave a feedback message?");
+            addButton("Leave Feedback", () => gatherFeedback());
+            addButton("Skip", finishConversation);
+        }
+
+        async function gatherFeedback() {
+            journeyState = 'awaitingFeedback';
+            await addMessage("Please provide your feedback below:");
+        }
+
+        async function handleFeedback(feedback) {
+            // Store the feedback (in a real application, you'd send this to a server)
+            console.log("Stored feedback:", feedback);
+
+            await addMessage("Thank you for your feedback. We appreciate your input.");
+            finishConversation();
+        }
+
+        async function finishConversation() {
+            journeyState = 'finished';
+            await addMessage("Thank you for using the Rail Sarthi. Have a great day!");
+            await addMessage("If you need any more assistance in the future, feel free to start a new conversation.");
+
+            // Clear existing buttons
+            const buttonContainers = document.querySelectorAll('.button-container');
+            buttonContainers.forEach(container => container.remove());
+
+            // Add a button to start a new conversation
+            addButton("Start New Conversation", () => {
+                // Clear chat history
+                chatMessages.innerHTML = '';
+                // Restart the conversation
+                startConversation();
+            });
+        }
+
+        function startConversation() {
+            journeyState = 'initial';
+            addMessage("Welcome to the Rail Sarthi! How can I assist you today?");
+            addButton("Start Journey", startJourney);
+        }
+
+        async function sendMessage() {
+ const input = userInput.value.trim();
+            if (input) {
+                await processUserInput(input);
+                userInput.value = '';
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initialize the conversation
+        startConversation();
+    </script>
+</body>
+</html>

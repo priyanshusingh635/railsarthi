@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Western Railway Information</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Mumbai Western Railway Information</h1>
+        
+        
+            <div class="image-container">
+                <img src="454f267b-5ea9-4eec-8990-b17157a2ef56.jfif" alt="Train Information Display" >
+         
+
+            <div class="explanation">
+                <h2>Train Information Display Explanation</h2>
+                <h3>ट्रेन सूचना प्रदर्शन व्याख्या</h3>
+                <p>
+                    <strong>V:</strong> Destination of the train / ट्रेन का गंतव्य <br>
+                    <strong>12:</strong> Number of coaches in the train / ट्रेन में कोच की संख्या <br>
+                    <strong>18:05:</strong> Departure time of the train / ट्रेन का प्रस्थान समय <br>
+                    <strong>F:</strong> Indicates it's a Fast train (S would indicate Slow) / यह एक तेज़ गाड़ी है (S धीमी गाड़ी को दर्शाता) <br>
+                    <strong>05:</strong> Train is expected to arrive in 5 minutes / ट्रेन के 5 मिनट में आने की उम्मीद है
+                </p>
+            </div>
+      
+
+        <h2>Station Search / स्टेशन खोज</h2>
+        <div class="search-container">
+            <input type="text" id="station-search" placeholder="Search station by shortform...">
+            <button id="search-button">Search / खोजें</button>
+        </div>
+        <div id="search-result"></div>
+    </div>
+
+    <script>
+        const stationShortforms = [
+            { shortform: 'C', english: 'Churchgate', hindi: 'चर्चगेट' },
+            { shortform: 'D', english: 'Dadar', hindi: 'दादर' },
+            { shortform: 'DDR', english: 'Dadar', hindi: 'दादर' },
+            { shortform: 'B', english: 'Bandra', hindi: 'वांद्रे' },
+            { shortform: 'A', english: 'Andheri', hindi: 'अंधेरी' },
+            { shortform: 'G', english: 'Goregaon', hindi: 'गोरेगाव' },
+            { shortform: 'M', english: 'Malad', hindi: 'मालाड' },
+            { shortform: 'KILE', english: 'Kandivli', hindi: 'कांदिवली' },
+            { shortform: 'BO', english: 'Borivali', hindi: 'बोरीवली' },
+            { shortform: 'BY', english: 'Bhayandar', hindi: 'भाईंदर' },
+            { shortform: 'BS', english: 'Vasai Road', hindi: 'वसई रोड' },
+            { shortform: 'NS', english: 'Nallasopara', hindi: 'नालासोपारा' },
+            { shortform: 'V', english: 'Virar', hindi: 'विरार' }
+        ];
+
+        const searchInput = document.getElementById('station-search');
+        const searchButton = document.getElementById('search-button');
+        const searchResult = document.getElementById('search-result');
+
+        function searchStation() {
+            const query = searchInput.value.trim().toUpperCase();
+            const station = stationShortforms.find(s => s.shortform === query);
+            
+            if (station) {
+                searchResult.textContent = `${station.english} (${station.hindi})`;
+                searchResult.classList.remove('error');
+            } else {
+                searchResult.textContent = 'Invalid choice / अमान्य विकल्प';
+                searchResult.classList.add('error');
+            }
+        }
+
+        searchButton.addEventListener('click', searchStation);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchStation();
+            }
+        });
+    </script>
+</body>
+</html>

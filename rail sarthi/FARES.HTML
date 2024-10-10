@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumbai Western Railway Fare and Time Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #050505;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-right: 20px;
+        }
+
+        .form-group label {
+            margin-bottom: 10px;
+        }
+
+        .form-group select {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #f0f0f0;
+        }
+
+        .button {
+            padding: 10px 20px;
+            background-color: #075e54;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #0d6d63;
+        }
+
+        .result {
+            padding: 20px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">Mumbai Western Railway Fare and Time Calculator</h1>
+        <div class="form-container">
+            <div class="form-group">
+                <label for="source">Source Station:</label>
+                <select id="source"></select>
+            </div>
+            <div class="form-group">
+                <label for="destination">Destination Station:</label>
+                <select id="destination"></select>
+            </div>
+        </div>
+        <button class="button" id="calculate">Calculate Fare and Time</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const stationData = [
+            { name: 'Churchgate', distance: 0 },
+            { name: 'Marine Lines', distance: 1.2 },
+            { name: 'Charni Road', distance: 2.4 },
+            { name: 'Grant Road', distance: 4.1 },
+            { name: 'Mumbai Central', distance: 5.2 },
+            { name: 'Mahalaxmi', distance: 6.7 },
+            { name: 'Lower Parel', distance: 8.7 },
+            { name: 'Elphinstone Road', distance: 10.2 },
+            { name: 'Dadar', distance: 11.9 },
+            { name: 'Matunga Road', distance: 13.8 },
+            { name: 'Mahim', distance: 15.3 },
+            { name: 'Bandra', distance: 17.5 },
+            { name: 'Khar Road', distance: 19.1 },
+            { name: 'Santacruz', distance: 20.6 },
+            { name: 'Vile Parle', distance: 22.3 },
+            { name: 'Andheri', distance: 24.5 },
+            { name: 'Jogeshwari', distance: 26.9 },
+            { name: 'Goregaon', distance: 29.5 },
+            { name: 'Malad', distance: 32.3 },
+            { name: 'Kandivali', distance: 34.8 },
+            { name: 'Borivali', distance: 37.5 },
+            { name: 'Dahisar', distance: 40.5 },
+            { name: 'Mira Road', distance: 43.3 },
+            { name: 'Bhayandar', distance: 46.3 },
+ { name: 'Naigaon', distance: 50.2 },
+            { name: 'Vasai Road', distance: 53.9 },
+            { name: 'Nalla Sopara', distance: 57.4 },
+            { name: 'Virar', distance: 60.8 }
+        ];
+
+        const fareSlab = [
+            { upTo: 5, secondClass: 5, firstClass: 65, ac: 85 },
+            { upTo: 10, secondClass: 10, firstClass: 75, ac: 100 },
+            { upTo: 20, secondClass: 15, firstClass: 110, ac: 145 },
+            { upTo: 30, secondClass: 20, firstClass: 150, ac: 195 },
+            { upTo: 40, secondClass: 25, firstClass: 185, ac: 240 },
+            { upTo: 50, secondClass: 30, firstClass: 220, ac: 285 },
+            { upTo: 60, secondClass: 35, firstClass: 250, ac: 325 },
+            { upTo: Infinity, secondClass: 40, firstClass: 280, ac: 365 }
+        ];
+
+        const sourceSelect = document.getElementById('source');
+        const destinationSelect = document.getElementById('destination');
+        const calculateButton = document.getElementById('calculate');
+        const resultDiv = document.getElementById('result');
+
+        const averageSpeed = 30; // km/h
+
+        function populateStations() {
+            stationData.forEach(station => {
+                const option = document.createElement('option');
+                option.value = station.name;
+                option.textContent = station.name;
+                sourceSelect.appendChild(option.cloneNode(true));
+                destinationSelect.appendChild(option);
+            });
+        }
+
+        function calculateFare(distance) {
+            const slab = fareSlab.find(s => distance <= s.upTo);
+            return {
+                secondClass: slab.secondClass,
+                firstClass: slab.firstClass,
+                ac: slab.ac
+            };
+        }
+
+        function estimateJourneyTime(distance) {
+            const timeInHours = distance / averageSpeed;
+            const timeInMinutes = Math.round(timeInHours * 60);
+            return timeInMinutes;
+        }
+
+        function formatTime(minutes) {
+            const hours = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${hours}h ${mins}m`;
+        }
+
+        function displayFareAndTime() {
+            const sourceStation = stationData.find(s => s.name === sourceSelect.value);
+            const destStation = stationData.find(s => s.name === destinationSelect.value);
+            const distance = Math.abs(destStation.distance - sourceStation.distance);
+            const fare = calculateFare(distance);
+            const journeyTimeMinutes = estimateJourneyTime(distance);
+
+            resultDiv.innerHTML = `
+                <h2>Journey Information</h2>
+                <p>From: ${sourceSelect.value}</p>
+                <p>To: ${destinationSelect.value}</p>
+                <p>Distance: ${distance.toFixed(1)} km</p>
+                <p>Estimated Journey Time: ${formatTime(journeyTimeMinutes)}</p>
+                <h3>Fares:</h3>
+                <p>Second Class: ₹${fare.secondClass}</p>
+                <p>First Class: ₹${fare.firstClass}</p>
+                <p>AC: ₹${fare.ac}</p>
+            `;
+        }
+
+        populateStations();
+        calculateButton.addEventListener('click', displayFareAndTime);
+    </script>
+</body>
+</html>
